@@ -1,20 +1,27 @@
-.picker-view {
+.q-select {
   position: fixed;
   left: 0;
   bottom: 0;
+  width: 100%;
 }
 
 .addr-item {
-  line-height: 50px;
+  line-height: 100rpx;
   text-align: center;
 }
 
-.show {
-  text-align: center;
-  margin: 20px;
-  height: 50px;
+.q-select__buttons {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 40rpx;
 }
 
-.choose {
-  margin: 20px 0;
+.q-select--cancel {
+  padding: 16rpx 24rpx;
+  color: #969799;
+}
+
+.q-select--confirm {
+  padding: 16rpx 24rpx;
+  color: #576b95;
 }

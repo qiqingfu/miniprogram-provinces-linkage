@@ -15,6 +15,10 @@ Component({
     hideDistrict: {
       type: Boolean,
       value: false
+    },
+    visible: {
+      type: Boolean,
+      value: false
     }
   },
   methods: {
@@ -182,7 +186,7 @@ Component({
     init() {
       const { hideDistrict, list: data } = this.data;
       this.setData({
-        'areaPicker.hideDistrict': hideDistrict
+        'areaPicker.hideDistrict': !hideDistrict
       });
 
       if (!data) {
@@ -194,7 +198,6 @@ Component({
       const province = this.store.findProvince();
       const firstProvince = province[0];
       const provinceDataWithDot = this.addDot(province);
-      console.log('firstProvince =>', firstProvince);
 
       this.setData({
         'areaPicker.provinceData': provinceDataWithDot,
@@ -206,7 +209,6 @@ Component({
       const city = this.store.findCity(firstProvince.number);
       const firstCity = city[0];
       const cityDataWithDot = this.addDot(city);
-      console.log('firstCity =>', firstCity);
 
       this.setData({
         'areaPicker.cityData': cityDataWithDot,
@@ -219,7 +221,6 @@ Component({
         const district = this.store.findDistrict(firstCity.number);
         const firstDistrict = district[0];
         const districtDataWithDot = this.addDot(district);
-        console.log('firstDistrict =>', firstDistrict);
 
         /**
          * 对处理区或县时，获取省列表和市列表数据
