@@ -28,6 +28,7 @@ module.exports = {
     alert: true,
     Location: true,
     my: true,
-    Image: true
+    Image: true,
+    Component: true
   },
 }
