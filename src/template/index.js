@@ -41,7 +41,7 @@ const conf = {
      * 获取 value, picker-view-column 选择的第几项
      * provinceData 省的列表数据
      */
-    const { value, provinceData, cityData } = this.data.areaPicker;
+    const { value, provinceData, cityData, districtData } = this.data.areaPicker;
 
     /**
      * 这是一段什么算法逻辑
@@ -141,10 +141,9 @@ const conf = {
       /**
        * 仅仅滑动区，不会再发送接口
        */
-      const { cityData, districtData } = this.data.areaPicker;
       this.setData({
         'areaPicker.value': currentValue,
-        'areaPicker.address': provinceData[ cv0 ].fullName + ' - ' + cityData[ cv1 ].fullName + (hideDistrict ? '' : ' - ' + districtData[ cv2 ].fullName),
+        'areaPicker.address': provinceData[ cv0 ].name + ' - ' + cityData[ cv1 ].name + (hideDistrict ? '' : ' - ' + districtData[ cv2 ].name),
         'areaPicker.selected': hideDistrict ? [ provinceData[ cv0 ], cityData[ cv1 ] ] : [ provinceData[ cv0 ], cityData[ cv1 ], districtData[ cv2 ] ]
       });
     }
