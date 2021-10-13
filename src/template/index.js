@@ -1,4 +1,5 @@
 import { createStore } from './store';
+import { getFields } from './util';
 
 const conf = {
   /**
@@ -92,14 +93,14 @@ const conf = {
             'areaPicker.districtData': districtDataWithDot,
             'areaPicker.value': [ cv0, 0, 0 ],
             'areaPicker.address': provinceData[ cv0 ].name + ' - ' + firstCity.name + (hideDistrict ? '' : ' - ' + firstDistrict.name),
-            'areaPicker.selected': hideDistrict ? [ provinceData[ cv0 ], firstCity ] : [ provinceData[ cv0 ], firstCity, firstDistrict ]
+            'areaPicker.selected': hideDistrict ? getFields([ provinceData[ cv0 ], firstCity ]) : getFields([ provinceData[ cv0 ], firstCity, firstDistrict ])
           });
         } else {
           this.setData({
             'areaPicker.districtData': [],
             'areaPicker.value': [ cv0, cv1, 0 ],
             'areaPicker.address': provinceData[ cv0 ].fullName + ' - ' + firstCity.name,
-            'areaPicker.selected': [ provinceData[ cv0 ], firstCity ]
+            'areaPicker.selected': getFields([ provinceData[ cv0 ], firstCity ])
           });
         }
       } else {
@@ -110,7 +111,7 @@ const conf = {
           'areaPicker.cityData': [],
           'areaPicker.districtData': [],
           'areaPicker.address': provinceData[ cv0 ].name,
-          'areaPicker.selected': [ provinceData[ cv0 ] ],
+          'areaPicker.selected': getFields([ provinceData[ cv0 ] ]),
         });
       }
     } else if (cityCondition) {
@@ -127,14 +128,14 @@ const conf = {
           'areaPicker.districtData': districtDataWithDot,
           'areaPicker.value': [ cv0, cv1, 0 ],
           'areaPicker.address': provinceData[ cv0 ].name + ' - ' + cityData[ cv1 ].name + (hideDistrict ? '' : ' - ' + districtDataWithDot[ 0 ].name),
-          'areaPicker.selected': hideDistrict ? [ provinceData[ cv0 ], cityData[ cv1 ] ] : [ provinceData[ cv0 ], cityData[ cv1 ], districtDataWithDot[ 0 ] ]
+          'areaPicker.selected': hideDistrict ? getFields([ provinceData[ cv0 ], cityData[ cv1 ] ]) : getFields([ provinceData[ cv0 ], cityData[ cv1 ], districtDataWithDot[ 0 ] ])
         });
       } else {
         this.setData({
           'areaPicker.districtData': [],
           'areaPicker.value': [ cv0, cv1, 0 ],
           'areaPicker.address': provinceData[ cv0 ].name + ' - ' + cityData[ cv1 ].name,
-          'areaPicker.selected': [ provinceData[ cv0 ], cityData[ cv1 ] ]
+          'areaPicker.selected': getFields([ provinceData[ cv0 ], cityData[ cv1 ] ])
         });
       }
     } else if (districtCondition) {
@@ -144,7 +145,7 @@ const conf = {
       this.setData({
         'areaPicker.value': currentValue,
         'areaPicker.address': provinceData[ cv0 ].name + ' - ' + cityData[ cv1 ].name + (hideDistrict ? '' : ' - ' + districtData[ cv2 ].name),
-        'areaPicker.selected': hideDistrict ? [ provinceData[ cv0 ], cityData[ cv1 ] ] : [ provinceData[ cv0 ], cityData[ cv1 ], districtData[ cv2 ] ]
+        'areaPicker.selected': hideDistrict ? getFields([ provinceData[ cv0 ], cityData[ cv1 ] ]) : getFields([ provinceData[ cv0 ], cityData[ cv1 ], districtData[ cv2 ] ])
       });
     }
   }
@@ -234,7 +235,7 @@ export default (config = {}) => {
       'areaPicker.selectedDistrict.code': firstDistrict.number,
       'areaPicker.selectedDistrict.fullName': firstDistrict.name,
       'areaPicker.address': provinceData[0].name + ' - ' + cityData[0].name + ' - ' + firstDistrict.name,
-      'areaPicker.selected': [ provinceData[0], cityData[0], firstDistrict ]
+      'areaPicker.selected': [ ...getFields([provinceData[0], cityData[0], firstDistrict]) ]
     });
 
     console.log(self.data);

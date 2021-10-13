@@ -64,6 +64,6 @@ Page({
     });
   },
   getSelecedData() {
-    console.table(getSelectedAreaData());
+    console.log(getSelectedAreaData());
   }
 });
