@@ -257,13 +257,17 @@ Component({
   },
   lifetimes: {
     attached() {
-      console.log('attached');
       this.init();
     }
   },
   observers: {
     list() {
       this.init();
+    },
+    visible(v) {
+      if (v) {
+        this.trigger(EVENTS.CHANGE);
+      }
     }
   }
 });

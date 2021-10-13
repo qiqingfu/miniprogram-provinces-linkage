@@ -6,7 +6,7 @@
 }
 
 .addr-item {
-  line-height: 100rpx;
+  line-height: 68rpx;
   text-align: center;
 }
 
