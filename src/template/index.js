@@ -71,51 +71,48 @@ const conf = {
 
     /**
      * 如果省被滑动了，那么要重新获取市、区的数据
+     * cv0 为省滑动到的下标，从 provinceData 省列表项中根据下标匹配到对应的省，获取到省 number
      */
     if (provinceCondition) {
-      // 滑动省份
-      // 根据省的 code 获取市列表数据
-      fetch(apiUrl + provinceData[ cv0 ].code).then((city) => {
-        const cityData = city.data.result;
-        if (cityData && cityData.length) {
-          const dataWithDot = conf.addDot(city.data.result);
+      const city = self.store.findCity(provinceData[cv0].number);
+      const firstCity = city[0];
+      const cityDataWithDot = conf.addDot(city);
+
+      if (city && city.length) {
+        self.setData({
+          'areaPicker.cityData': cityDataWithDot,
+        });
+
+        const district = self.store.findDistrict(firstCity.number);
+        const firstDistrict = district[0];
+        const districtDataWithDot = conf.addDot(district);
+
+        if (district && district.length) {
           this.setData({
-            'areaPicker.cityData': dataWithDot
-          });
-          return fetch(apiUrl + dataWithDot[ 0 ].code);
-        } else {
-          /**
-           * 当省下面不存在市的情况
-           */
-          this.setData({
-            'areaPicker.cityData': [],
-            'areaPicker.districtData': [],
-            'areaPicker.address': provinceData[ cv0 ].fullName,
-            'areaPicker.selected': [ provinceData[ cv0 ] ],
-          });
-        }
-      }).then((district) => {
-        const districtData = district.data.result;
-        const { cityData } = this.data.areaPicker;
-        if (districtData && districtData.length > 0) {
-          const dataWithDot = conf.addDot(districtData);
-          this.setData({
-            'areaPicker.districtData': dataWithDot,
+            'areaPicker.districtData': districtDataWithDot,
             'areaPicker.value': [ cv0, 0, 0 ],
-            'areaPicker.address': provinceData[ cv0 ].fullName + ' - ' + cityData[ 0 ].fullName + (hideDistrict ? '' : ' - ' + dataWithDot[ 0 ].fullName),
-            'areaPicker.selected': hideDistrict ? [ provinceData[ cv0 ], cityData[ 0 ] ] : [ provinceData[ cv0 ], cityData[ 0 ], dataWithDot[ 0 ] ]
+            'areaPicker.address': provinceData[ cv0 ].name + ' - ' + firstCity.name + (hideDistrict ? '' : ' - ' + firstDistrict.name),
+            'areaPicker.selected': hideDistrict ? [ provinceData[ cv0 ], firstCity ] : [ provinceData[ cv0 ], firstCity, firstDistrict ]
           });
         } else {
           this.setData({
             'areaPicker.districtData': [],
             'areaPicker.value': [ cv0, cv1, 0 ],
-            'areaPicker.address': provinceData[ cv0 ].fullName + ' - ' + cityData[ 0 ].fullName,
-            'areaPicker.selected': [ provinceData[ cv0 ], cityData[ 0 ] ]
+            'areaPicker.address': provinceData[ cv0 ].fullName + ' - ' + firstCity.name,
+            'areaPicker.selected': [ provinceData[ cv0 ], firstCity ]
           });
         }
-      }).catch((e) => {
-        console.error(e);
-      });
+      } else {
+        /**
+           * 当省下面不存在市的情况
+           */
+        this.setData({
+          'areaPicker.cityData': [],
+          'areaPicker.districtData': [],
+          'areaPicker.address': provinceData[ cv0 ].name,
+          'areaPicker.selected': [ provinceData[ cv0 ] ],
+        });
+      }
     } else if (cityCondition) {
       /**
        * 市被滑动了，要重新获取区的数据
@@ -196,9 +193,9 @@ export default (config = {}) => {
     throw new Error('初始化：必须传入原始数据源 data');
   }
 
-  const store = createStore(data);
+  self.store = createStore(data);
 
-  const province = store.findProvince();
+  const province = self.store.findProvince();
   const firstProvince = province[0];
   const provinceDataWithDot = conf.addDot(province);
   console.log('firstProvince =>', firstProvince);
@@ -210,7 +207,7 @@ export default (config = {}) => {
     'areaPicker.selectedProvince.fullName': firstProvince.name,
   });
 
-  const city = store.findCity(firstProvince.number);
+  const city = self.store.findCity(firstProvince.number);
   const firstCity = city[0];
   const cityDataWithDot = conf.addDot(city);
   console.log('firstCity =>', firstCity);
@@ -223,7 +220,7 @@ export default (config = {}) => {
   });
 
   if (!config.hideDistrict) {
-    const district = store.findDistrict(firstCity.number);
+    const district = self.store.findDistrict(firstCity.number);
     const firstDistrict = district[0];
     const districtDataWithDot = conf.addDot(district);
     console.log('firstDistrict =>', firstDistrict);
