@@ -43,7 +43,6 @@ const conf = {
 	 * @param {object} e 事件对象
 	 */
   bindChange: function(e) {
-    console.log(e);
     /**
      * value [0, 0, 0], 分别对应选中的省市区下标
      */
@@ -95,6 +94,7 @@ const conf = {
      */
     if (provinceCondition) {
       // 滑动省份
+      // 根据省的 code 获取市列表数据
       fetch(apiUrl + provinceData[ cv0 ].code).then((city) => {
         const cityData = city.data.result;
         if (cityData && cityData.length) {
@@ -104,6 +104,9 @@ const conf = {
           });
           return fetch(apiUrl + dataWithDot[ 0 ].code);
         } else {
+          /**
+           * 当省下面不存在市的情况
+           */
           this.setData({
             'areaPicker.cityData': [],
             'areaPicker.districtData': [],
