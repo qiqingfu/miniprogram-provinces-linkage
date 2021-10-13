@@ -34,6 +34,20 @@ const data = [
             number: '003'
           }
         ]
+      },
+      {
+        id: 12,
+        level: 2,
+        name: '芜湖市',
+        number: '0012',
+        children: [
+          {
+            id: 13,
+            level: 3,
+            name: '镜湖区',
+            number: '0013'
+          }
+        ]
       }
     ]
   }

@@ -41,7 +41,7 @@ const conf = {
      * 获取 value, picker-view-column 选择的第几项
      * provinceData 省的列表数据
      */
-    const { value, provinceData } = this.data.areaPicker;
+    const { value, provinceData, cityData } = this.data.areaPicker;
 
     /**
      * 这是一段什么算法逻辑
@@ -117,30 +117,26 @@ const conf = {
       /**
        * 市被滑动了，要重新获取区的数据
        */
-      const { provinceData, cityData } = this.data.areaPicker;
-      // 滑动城市
-      fetch(apiUrl + cityData[ cv1 ].code).then((district) => {
-        if (!district) return;
-        const districtData = district.data.result;
-        if (districtData && districtData.length > 0) {
-          const dataWithDot = conf.addDot(districtData);
-          this.setData({
-            'areaPicker.districtData': dataWithDot,
-            'areaPicker.value': [ cv0, cv1, 0 ],
-            'areaPicker.address': provinceData[ cv0 ].fullName + ' - ' + cityData[ cv1 ].fullName + (hideDistrict ? '' : ' - ' + dataWithDot[ 0 ].fullName),
-            'areaPicker.selected': hideDistrict ? [ provinceData[ cv0 ], cityData[ cv1 ] ] : [ provinceData[ cv0 ], cityData[ cv1 ], dataWithDot[ 0 ] ]
-          });
-        } else {
-          this.setData({
-            'areaPicker.districtData': [],
-            'areaPicker.value': [ cv0, cv1, 0 ],
-            'areaPicker.address': provinceData[ cv0 ].fullName + ' - ' + cityData[ cv1 ].fullName,
-            'areaPicker.selected': [ provinceData[ cv0 ], cityData[ cv1 ] ]
-          });
-        }
-      }).catch((e) => {
-        console.error(e);
-      });
+      const district = self.store.findDistrict(cityData[cv1].number);
+      const districtDataWithDot = conf.addDot(district);
+
+      if (!district) return;
+
+      if (district && district.length) {
+        this.setData({
+          'areaPicker.districtData': districtDataWithDot,
+          'areaPicker.value': [ cv0, cv1, 0 ],
+          'areaPicker.address': provinceData[ cv0 ].name + ' - ' + cityData[ cv1 ].name + (hideDistrict ? '' : ' - ' + districtDataWithDot[ 0 ].name),
+          'areaPicker.selected': hideDistrict ? [ provinceData[ cv0 ], cityData[ cv1 ] ] : [ provinceData[ cv0 ], cityData[ cv1 ], districtDataWithDot[ 0 ] ]
+        });
+      } else {
+        this.setData({
+          'areaPicker.districtData': [],
+          'areaPicker.value': [ cv0, cv1, 0 ],
+          'areaPicker.address': provinceData[ cv0 ].name + ' - ' + cityData[ cv1 ].name,
+          'areaPicker.selected': [ provinceData[ cv0 ], cityData[ cv1 ] ]
+        });
+      }
     } else if (districtCondition) {
       /**
        * 仅仅滑动区，不会再发送接口
