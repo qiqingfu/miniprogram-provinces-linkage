@@ -1,4 +1,5 @@
 import { apiUrl } from '../config/index';
+import { createStore } from './store';
 
 const defaultOptions = {
   method: 'GET'
@@ -29,10 +30,10 @@ const conf = {
     if (arr instanceof Array) {
       const tmp = arr.slice();
       tmp.map(val => {
-        if (val.fullName.length > 4) {
-          val.fullNameDot = val.fullName.slice(0, 4) + '...';
+        if (val.name.length > 4) {
+          val.nameDot = val.name.slice(0, 4) + '...';
         } else {
-          val.fullNameDot = val.fullName;
+          val.nameDot = val.name;
         }
       });
       return tmp;
@@ -211,60 +212,43 @@ export default (config = {}) => {
   self.config = config;
   self.bindChange = conf.bindChange.bind(self);
 
-  /**
-   * 获取省市区数据
-   */
-  fetch(apiUrl + '0').then((province) => {
-    const firstProvince = province.data.result[ 0 ];
-    const dataWithDot = conf.addDot(province.data.result);
-    /**
-		 * 默认选择获取的省份第一个省份数据
-		 */
-    self.setData({
-      'areaPicker.provinceData': dataWithDot,
-      'areaPicker.selectedProvince.index': 0,
-      'areaPicker.selectedProvince.code': firstProvince.code,
-      'areaPicker.selectedProvince.fullName': firstProvince.fullName,
-    });
-    /**
-     * 根据省 code 获取市列表数据
-     */
-    return fetch(apiUrl + firstProvince.code);
-  }).then((city) => {
-    const firstCity = city.data.result[ 0 ];
-    const dataWithDot = conf.addDot(city.data.result);
-    self.setData({
-      'areaPicker.cityData': dataWithDot,
-      'areaPicker.selectedCity.index': 0,
-      'areaPicker.selectedCity.code': firstCity.code,
-      'areaPicker.selectedCity.fullName': firstCity.fullName,
-    });
-    /**
-		 * 省市二级则不请求区域
-     *
-     * hideDistrict 为 true 则不请求区数据
-		 */
-    if (!config.hideDistrict) {
-      /**
-       * 根据选中市的 code 获取区数据
-       */
-      return fetch(apiUrl + firstCity.code);
-    } else {
-      /**
-       * 不请求区数据处理
-       */
-      const { provinceData, cityData } = self.data.areaPicker;
-      self.setData({
-        'areaPicker.value': [ 0, 0 ],
-        'areaPicker.address': provinceData[ 0 ].fullName + ' - ' + cityData[ 0 ].fullName,
-        'areaPicker.selected': [ provinceData[ 0 ], cityData[ 0 ] ]
-      });
-    }
-  }).then((district) => {
-    if (!district) return;
-    console.log('district =>', district);
-    const firstDistrict = district.data.result[ 0 ];
-    const dataWithDot = conf.addDot(district.data.result);
+  const data = config.data;
+  if (!data) {
+    throw new Error('初始化：必须传入原始数据源 data');
+  }
+
+  const store = createStore(data);
+
+  const province = store.findProvince();
+  const firstProvince = province[0];
+  const provinceDataWithDot = conf.addDot(province);
+  console.log('firstProvince =>', firstProvince);
+
+  self.setData({
+    'areaPicker.provinceData': provinceDataWithDot,
+    'areaPicker.selectedProvince.index': 0,
+    'areaPicker.selectedProvince.code': firstProvince.number,
+    'areaPicker.selectedProvince.fullName': firstProvince.name,
+  });
+
+  const city = store.findCity(firstProvince.number);
+  const firstCity = city[0];
+  const cityDataWithDot = conf.addDot(city);
+  console.log('firstCity =>', firstCity);
+
+  self.setData({
+    'areaPicker.cityData': cityDataWithDot,
+    'areaPicker.selectedCity.index': 0,
+    'areaPicker.selectedCity.code': firstCity.number,
+    'areaPicker.selectedCity.fullName': firstCity.name,
+  });
+
+  if (!config.hideDistrict) {
+    const district = store.findDistrict(firstCity.number);
+    const firstDistrict = district[0];
+    const districtDataWithDot = conf.addDot(district);
+    console.log('firstDistrict =>', firstDistrict);
+
     /**
      * 对处理区或县时，获取省列表和市列表数据
      */
@@ -274,14 +258,98 @@ export default (config = {}) => {
        * 表示 picker-view 内的 picker-view-column 选择的第几项（下标从0开始）
        */
       'areaPicker.value': [ 0, 0, 0 ],
-      'areaPicker.districtData': dataWithDot,
+      'areaPicker.districtData': districtDataWithDot,
       'areaPicker.selectedDistrict.index': 0,
-      'areaPicker.selectedDistrict.code': firstDistrict.code,
-      'areaPicker.selectedDistrict.fullName': firstDistrict.fullName,
-      'areaPicker.address': provinceData[ 0 ].fullName + ' - ' + cityData[ 0 ].fullName + ' - ' + firstDistrict.fullName,
-      'areaPicker.selected': [ provinceData[ 0 ], cityData[ 0 ], firstDistrict ]
+      'areaPicker.selectedDistrict.code': firstDistrict.number,
+      'areaPicker.selectedDistrict.fullName': firstDistrict.name,
+      'areaPicker.address': provinceData[0].name + ' - ' + cityData[0].name + ' - ' + firstDistrict.name,
+      'areaPicker.selected': [ provinceData[0], cityData[0], firstDistrict ]
     });
-  }).catch((e) => {
-    console.error(e);
-  });
+
+    console.log(self.data);
+  } else {
+    /**
+     * 不请求区数据处理
+     */
+    const { provinceData, cityData } = self.data.areaPicker;
+    self.setData({
+      'areaPicker.value': [ 0, 0 ],
+      'areaPicker.address': provinceData[ 0 ].name + ' - ' + cityData[ 0 ].name,
+      'areaPicker.selected': [ provinceData[ 0 ], cityData[ 0 ] ]
+    });
+  }
+
+  /**
+   * 获取省市区数据
+   */
+  // fetch(apiUrl + '0').then((province) => {
+  //   const firstProvince = province.data.result[ 0 ];
+  //   const dataWithDot = conf.addDot(province.data.result);
+  //   /**
+  // 	 * 默认选择获取的省份第一个省份数据
+  // 	 */
+  //   self.setData({
+  //     'areaPicker.provinceData': dataWithDot,
+  //     'areaPicker.selectedProvince.index': 0,
+  //     'areaPicker.selectedProvince.code': firstProvince.code,
+  //     'areaPicker.selectedProvince.fullName': firstProvince.fullName,
+  //   });
+  //   /**
+  //    * 根据省 code 获取市列表数据
+  //    */
+  //   return fetch(apiUrl + firstProvince.code);
+  // }).then((city) => {
+  //   const firstCity = city.data.result[ 0 ];
+  //   const dataWithDot = conf.addDot(city.data.result);
+  //   self.setData({
+  //     'areaPicker.cityData': dataWithDot,
+  //     'areaPicker.selectedCity.index': 0,
+  //     'areaPicker.selectedCity.code': firstCity.code,
+  //     'areaPicker.selectedCity.fullName': firstCity.fullName,
+  //   });
+  //   /**
+  // 	 * 省市二级则不请求区域
+  //    *
+  //    * hideDistrict 为 true 则不请求区数据
+  // 	 */
+  //   if (!config.hideDistrict) {
+  //     /**
+  //      * 根据选中市的 code 获取区数据
+  //      */
+  //     return fetch(apiUrl + firstCity.code);
+  //   } else {
+  //     /**
+  //      * 不请求区数据处理
+  //      */
+  //     const { provinceData, cityData } = self.data.areaPicker;
+  //     self.setData({
+  //       'areaPicker.value': [ 0, 0 ],
+  //       'areaPicker.address': provinceData[ 0 ].fullName + ' - ' + cityData[ 0 ].fullName,
+  //       'areaPicker.selected': [ provinceData[ 0 ], cityData[ 0 ] ]
+  //     });
+  //   }
+  // }).then((district) => {
+  //   if (!district) return;
+  //   console.log('district =>', district);
+  //   const firstDistrict = district.data.result[ 0 ];
+  //   const dataWithDot = conf.addDot(district.data.result);
+  //   /**
+  //    * 对处理区或县时，获取省列表和市列表数据
+  //    */
+  //   const { provinceData, cityData } = self.data.areaPicker;
+  //   self.setData({
+  //     /**
+  //      * 表示 picker-view 内的 picker-view-column 选择的第几项（下标从0开始）
+  //      */
+  //     'areaPicker.value': [ 0, 0, 0 ],
+  //     'areaPicker.districtData': dataWithDot,
+  //     'areaPicker.selectedDistrict.index': 0,
+  //     'areaPicker.selectedDistrict.code': firstDistrict.code,
+  //     'areaPicker.selectedDistrict.fullName': firstDistrict.fullName,
+  //     'areaPicker.address': provinceData[ 0 ].fullName + ' - ' + cityData[ 0 ].fullName + ' - ' + firstDistrict.fullName,
+  //     'areaPicker.selected': [ provinceData[ 0 ], cityData[ 0 ], firstDistrict ]
+  //   });
+  // }).catch((e) => {
+  //   console.error(e);
+  // });
 };

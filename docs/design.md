@@ -76,3 +76,28 @@ const province = {...city, children: city}
 3. 设计一个查询器
 根据省的 code 查询到市
 根据市的 code 查询到区
+
+可以很方便的获取省列表。
+
+如何单独的根据省的 number 获取到市列表，根据市的 number 获取到区的列表呢?
+
+Map(), 主要用于存储 市 number 对应的市数据, 进而查到区列表
+
+```js
+{
+  002: {
+        id: 2,
+        level: 2,
+        name: "合肥市",
+        number: "002",
+        children: [
+          {
+            id: 3,
+            level: 3,
+            name: "瑶海区",
+            number: "003"
+          }
+        ]
+      }
+}
+```
