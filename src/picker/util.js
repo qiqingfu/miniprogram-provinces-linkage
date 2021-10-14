@@ -1,33 +1,39 @@
-const _v = { _virtual: true };
+import { LEVEL_DEP } from './constant';
 
-export const isLayerOne = (data) => {
-  return !data.children && data.level === 1;
-};
-
-/**
- *
- * @param {*} data
- */
-export const isLayerTwo = (data) => {
-  const len = data.children.length;
-  return (
-    !data.children[0].children &&
-    !data.children[len - 1].children &&
-    data.children[0].level === 2 &&
-    data.children[len - 1].level === 2
-  );
-};
-
-export const packOne = (data) => {
-  return { ...data, ..._v, children: [{ ...data, level: 2 }] };
-};
+const viKey = Symbol('virtualIdentity');
+const virtualIdentity = { [viKey]: true };
 
 /**
+ * 仅支持两层结构层级的校验
  * @param {*} data
+ * @param {*} dep
  */
-export const pack = (data) => {
-  const children = data.children.map((child) => ({ ...child, level: 3 }));
-  return { ...data, ..._v, children: [{ ...data, level: 2, children }] };
+const getLayerDepth = (data) => {
+  return !data.children && data.level === LEVEL_DEP.ONE
+    ? LEVEL_DEP.ONE
+    : !data.children[ 0 ].children &&
+       data.children[ 0 ].level === LEVEL_DEP.TWO
+      ? LEVEL_DEP.TWO
+      : LEVEL_DEP.DEFAULT;
+};
+
+const packsMaps = {
+  [LEVEL_DEP.ONE](data) {
+    const packData = { ...data, ...virtualIdentity, children: [{ ...data, level: LEVEL_DEP.TWO }] };
+    return this[LEVEL_DEP.TWO](packData);
+  },
+  [LEVEL_DEP.TWO](data) {
+    const children = data.children.map((_) => ({ ..._, level: LEVEL_DEP.DEFAULT }));
+    return { ...data, ...virtualIdentity, children: [{ ...data, level: LEVEL_DEP.TWO, children }] };
+  },
+  [LEVEL_DEP.DEFAULT](data) {
+    return data;
+  }
+};
+
+export const pack = data => {
+  const depIndex = getLayerDepth(data);
+  return packsMaps[depIndex](data);
 };
 
 export const isArray = Array.isArray;

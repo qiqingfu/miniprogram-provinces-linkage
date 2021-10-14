@@ -82,21 +82,21 @@ Component({
        */
       const provinceCondition = hideDistrict
         ? value[ 0 ] !== cv0 && value[ 1 ] === cv1
-        : value[ 0 ] !== cv0 && value[ 1 ] === cv1 && value[ 2 ] === cv2; // 只看这段
+        : value[ 0 ] !== cv0 && value[ 1 ] === cv1 && value[ 2 ] === cv2;
 
       /**
        * 市 picker-view-column 被滑动了
        */
       const cityCondition = hideDistrict
         ? value[ 0 ] === cv0 && value[ 1 ] !== cv1
-        : value[ 0 ] === cv0 && value[ 1 ] !== cv1 && value[ 2 ] === cv2; // 只看这段
+        : value[ 0 ] === cv0 && value[ 1 ] !== cv1 && value[ 2 ] === cv2;
 
       /**
        * 区 picker-view-column 被滑动了
        */
       const districtCondition = hideDistrict
         ? false
-        : value[ 0 ] === cv0 && value[ 1 ] === cv1 && value[ 2 ] !== cv2; // 只看这段
+        : value[ 0 ] === cv0 && value[ 1 ] === cv1 && value[ 2 ] !== cv2;
 
       /**
        * 如果省被滑动了，那么要重新获取市、区的数据
@@ -261,11 +261,8 @@ Component({
     }
   },
   observers: {
-    list() {
-      this.init();
-    },
-    visible(v) {
-      if (v) {
+    visible(visible) {
+      if (visible) {
         this.trigger(EVENTS.CHANGE);
       }
     }

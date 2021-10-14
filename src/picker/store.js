@@ -1,6 +1,6 @@
-import { isArray, isLayerTwo, isLayerOne, packOne, pack, find } from './util';
+import { isArray, pack, find } from './util';
 
-const _ = {
+const globalWrapperData = {
   data: []
 };
 
@@ -10,14 +10,14 @@ const db = {
    * 查询省列表
    */
   findProvince() {
-    return _.data.map(_ => ({..._, children: null}));
+    return globalWrapperData.data.map(_ => ({..._, children: null}));
   },
   /**
    * 省数据的 number | code
    * @param {number} number
    */
   findCity(number) {
-    return find(_.data, _ => _.number === number).children;
+    return find(globalWrapperData.data, _ => _.number === number).children;
   },
   /**
    * 市列表的 number | code
@@ -29,7 +29,7 @@ const db = {
 };
 
 function createMap(db) {
-  _.data.forEach(s1 => {
+  globalWrapperData.data.forEach(s1 => {
     s1.children.forEach(s2 => {
       db.$$map.set(s2.number, s2);
     });
@@ -40,18 +40,9 @@ export const createStore = (data) => {
   if (!isArray(data)) {
     throw new Error(`类型错误：期望值的类型为 Array，结果是${typeof data}`);
   }
+  const each = (a, b) => { globalWrapperData.data[b] = pack(a) };
 
-  for (let i = 0; i < data.length; i++) {
-    let val = data[i];
-
-    if (isLayerOne(val)) val = packOne(val);
-
-    if (isLayerTwo(val)) {
-      _.data[i] = pack(val);
-    } else {
-      _.data[i] = val;
-    }
-  }
+  data.forEach(each);
 
   createMap(db);
 
