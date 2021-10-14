@@ -1,4 +1,8 @@
-import { LEVEL_DEP } from './constant';
+export const LEVEL_DEP = {
+  ONE: 1,
+  TWO: 2,
+  DEFAULT: 3
+};
 
 const viKey = Symbol('virtualIdentity');
 const virtualIdentity = { [viKey]: true };
