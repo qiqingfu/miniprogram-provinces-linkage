@@ -1,4 +1,4 @@
-import { createStore } from './store';
+import { createQuery } from './store';
 import { getFields } from './util';
 
 const EVENTS = {
@@ -103,7 +103,7 @@ Component({
        * cv0 为省滑动到的下标，从 provinceData 省列表项中根据下标匹配到对应的省，获取到省 number
        */
       if (provinceCondition) {
-        const city = this.store.findCity(provinceData[cv0].number);
+        const city = this.query.findCity(provinceData[cv0].number);
         const firstCity = city[0];
         const cityDataWithDot = this.addDot(city);
 
@@ -112,7 +112,7 @@ Component({
             'areaPicker.cityData': cityDataWithDot,
           });
 
-          const district = this.store.findDistrict(firstCity.number);
+          const district = this.query.findDistrict(firstCity.number);
           const firstDistrict = district[0];
           const districtDataWithDot = this.addDot(district);
 
@@ -146,7 +146,7 @@ Component({
         /**
          * 市被滑动了，要重新获取区的数据
          */
-        const district = this.store.findDistrict(cityData[cv1].number);
+        const district = this.query.findDistrict(cityData[cv1].number);
         const districtDataWithDot = this.addDot(district);
 
         if (!district) return;
@@ -193,9 +193,9 @@ Component({
         throw new Error('初始化：必须传入原始数据源 data');
       }
 
-      this.store = createStore(data);
+      this.query = createQuery(data);
 
-      const province = this.store.findProvince();
+      const province = this.query.findProvince();
       const firstProvince = province[0];
       const provinceDataWithDot = this.addDot(province);
 
@@ -206,7 +206,7 @@ Component({
         'areaPicker.selectedProvince.fullName': firstProvince.name,
       });
 
-      const city = this.store.findCity(firstProvince.number);
+      const city = this.query.findCity(firstProvince.number);
       const firstCity = city[0];
       const cityDataWithDot = this.addDot(city);
 
@@ -218,7 +218,7 @@ Component({
       });
 
       if (!hideDistrict) {
-        const district = this.store.findDistrict(firstCity.number);
+        const district = this.query.findDistrict(firstCity.number);
         const firstDistrict = district[0];
         const districtDataWithDot = this.addDot(district);
 
