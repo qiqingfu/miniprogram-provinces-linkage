@@ -1,5 +1,5 @@
 {
   "usingComponents": {
-    "q-select": "../../template/index"
+    "q-select": "../../picker/index"
   }
 }

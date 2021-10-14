@@ -4,7 +4,7 @@
     <text class="q-select--confirm" bindtap="confirm">确定</text>
   </view>
   <view class="q-select__picker">
-    <picker-view class="picker-view" indicator-style="height: 100rpx;" style="width: 100%; height: 400rpx" value="{{value}}" bindchange="bindChange">
+    <picker-view class="picker-view" indicator-style="height: 100rpx;" style="width: 100%; height: 400rpx" value="{{areaPicker.value}}" bindchange="bindChange">
       <picker-view-column>
         <view wx:for="{{areaPicker.provinceData}}" wx:key="code" class="addr-item">{{item.nameDot}}</view>
       </picker-view-column>

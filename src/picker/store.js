@@ -1,4 +1,4 @@
-import { isArray, isLayerTwo, pack, find } from './util';
+import { isArray, isLayerTwo, isLayerOne, packOne, pack, find } from './util';
 
 const _ = {
   data: []
@@ -42,7 +42,10 @@ export const createStore = (data) => {
   }
 
   for (let i = 0; i < data.length; i++) {
-    const val = data[i];
+    let val = data[i];
+
+    if (isLayerOne(val)) val = packOne(val);
+
     if (isLayerTwo(val)) {
       _.data[i] = pack(val);
     } else {
