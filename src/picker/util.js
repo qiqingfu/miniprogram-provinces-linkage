@@ -65,3 +65,17 @@ export const getFields = (data, keys = ['number', 'name', 'level']) => {
 
   return result;
 };
+
+export const cacheFindResult = (fn) => {
+  const cache = new Map();
+
+  return queryCode => {
+    let result = cache.get(queryCode);
+    if (result) return result;
+
+    result = fn(queryCode);
+    cache.set(queryCode, result);
+
+    return result;
+  };
+};

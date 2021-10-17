@@ -1,4 +1,4 @@
-import { isArray, pack, find } from './util';
+import { isArray, pack, find, cacheFindResult } from './util';
 
 const globalWrapperData = {
   data: [],
@@ -16,16 +16,16 @@ const query = {
    * 省数据的 number | code
    * @param {number} number
    */
-  findCity(number) {
+  findCity: cacheFindResult((number) => {
     return find(globalWrapperData.data, city => city.number === number).children;
-  },
+  }),
   /**
    * 市列表的 number | code
    * @param {number} number
    */
-  findDistrict(number) {
+  findDistrict: cacheFindResult((number) => {
     return globalWrapperData.$$map.get(number).children;
-  }
+  })
 };
 
 export const createQuery = (data) => {
